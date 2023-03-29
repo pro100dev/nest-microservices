@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  api-service:
+    build:
+      context: ./api-service
+      target: "${NODE_ENV}"
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV:${NODE_ENV}
+      - API_SERVICE_HOSTNAME:${API_SERVICE_HOSTNAME}
+      - API_SERVICE_TCP_PORT:${API_SERVICE_TCP_PORT}
+      - API_SERVICE_HTTP_PORT:${API_SERVICE_HTTP_PORT}
+    hostname: "${API_SERVICE_HOSTNAME}"
+    ports:
+      - "${API_SERVICE_HTTP_PORT}:${API_SERVICE_HTTP_PORT}"
+      - "${API_SERVICE_TCP_PORT}:${API_SERVICE_TCP_PORT}"
+    restart: always
+    command: yarn start:${NODE_ENV}
+    volumes:
+      - ./api-service:/usr/src/app
+    networks:
+      - backend
+      - frontend
+
+  game-service:
+    build:
+      context: ./game-service
+      target: "${NODE_ENV}"
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV:${NODE_ENV}
+      - GAME_SERVICE_HOSTNAME:${GAME_SERVICE_HOSTNAME}
+      - GAME_SERVICE_PORT:${GAME_SERVICE_PORT}
+    hostname: "${GAME_SERVICE_HOSTNAME}"
+    ports:
+      - "${GAME_SERVICE_PORT}:${GAME_SERVICE_PORT}"
+    restart: always
+    command: yarn start:${NODE_ENV}
+    volumes:
+      - ./game-service:/usr/src/app
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+  frontend:
+    name: crash-game
+    external: true
