@@ -35,7 +35,25 @@ export class AppService {
     this.client.emit({ cmd: 'event123' }, 'emergency stop');
   }
 
-  async newGame() {
+  async betHandler() {
+    if (this.bettingPhase) {
+      this.client.emit({ cmd: 'event123' }, 'the bet is accepted');
+    }
+  }
+
+  async cancelBetHandler() {
+    if (this.bettingPhase) {
+      this.client.emit({ cmd: 'event123' }, 'the bet is canceled');
+    }
+  }
+
+  async cashOutHandler() {
+    if (this.gamePhase) {
+      this.client.emit({ cmd: 'event123' }, 'cash out');
+    }
+  }
+
+  private async newGame() {
     if (this.stopGame) return;
     this.gameContinues = true;
     this.client.emit({ cmd: 'event123' }, 'bet phase start');
@@ -50,14 +68,14 @@ export class AppService {
     }, 5000);
   }
 
-  async startGamePhase() {
+  private async startGamePhase() {
     this.gameStartTime = Date.now();
     this.gameLoopTimerId = setInterval(() => {
       this.updateGameLoop();
     }, 500);
   }
 
-  async updateGameLoop() {
+  private async updateGameLoop() {
     if (this.gamePhase) {
       if (Date.now() > this.gameStartTime + 10000) {
         await this.endGamePhase();
@@ -71,7 +89,7 @@ export class AppService {
     }
   }
 
-  endGamePhase() {
+  private endGamePhase() {
     if (!this.gameLoopTimerId) return;
     this.gamePhase = false;
     clearInterval(this.gameLoopTimerId);

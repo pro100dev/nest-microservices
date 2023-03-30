@@ -1,14 +1,10 @@
 import {
-  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  WsResponse,
 } from '@nestjs/websockets';
-import { from, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { Server } from 'socket.io';
 import { Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
@@ -28,27 +24,45 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleConnection(e) {
     const connectionsCount: number = e.server.engine.clientsCount;
     if (connectionsCount === 1) {
-      this.gameService.emit({ cmd: 'startGame' }, {});
+      this.startGame();
     }
   }
 
   handleDisconnect(e) {
     const connectionsCount: number = e.server.engine.clientsCount;
     if (connectionsCount < 1) {
-      this.gameService.emit({ cmd: 'stopGameForced' }, {});
+      this.stopGameForced();
     }
   }
 
-  @SubscribeMessage('events')
-  findAll(@MessageBody() data: any): Observable<WsResponse<number>> {
-    return from([1, 2, 3]).pipe(
-      map((item) => ({ event: 'events', data: item })),
-    );
+  @SubscribeMessage('startGame')
+  startGame() {
+    this.gameService.emit({ cmd: 'startGame' }, {});
+  }
+
+  @SubscribeMessage('stopGame')
+  stopGame() {
+    this.gameService.emit({ cmd: 'stopGame' }, {});
   }
 
   @SubscribeMessage('stopGameForced')
-  async identity(@MessageBody() data: number) {
+  stopGameForced() {
     this.gameService.emit({ cmd: 'stopGameForced' }, {});
+  }
+
+  @SubscribeMessage('betHandler')
+  betHandler() {
+    this.gameService.emit({ cmd: 'betHandler' }, {});
+  }
+
+  @SubscribeMessage('cancelBetHandler')
+  cancelBetHandler() {
+    this.gameService.emit({ cmd: 'cancelBetHandler' }, {});
+  }
+
+  @SubscribeMessage('cashOutHandler')
+  cashOutHandler() {
+    this.gameService.emit({ cmd: 'cashOutHandler' }, {});
   }
 
   test(data: string): void {

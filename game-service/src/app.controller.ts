@@ -34,4 +34,22 @@ export class AppController {
     console.log('forced stop game');
     await this.appService.stopGameLoopForced();
   }
+
+  @EventPattern({ cmd: 'betHandler' })
+  async betHandler() {
+    console.log('bet handler');
+    await this.appService.betHandler();
+  }
+
+  @EventPattern({ cmd: 'cancelBetHandler' })
+  async cancelBetHandler() {
+    console.log('cancel bet handler');
+    await this.appService.cancelBetHandler();
+  }
+
+  @EventPattern({ cmd: 'cashOutHandler' })
+  async cashOutHandler() {
+    console.log('cash out handler');
+    await this.appService.cashOutHandler();
+  }
 }

@@ -12,16 +12,11 @@
             logElem.scrollTop = logElem.scrollHeight;
         }
         const socket = io('http://localhost:3000');
-        function stopGameForced() {
-            socket.emit('stopGameForced', {});
+        function emitEvent(eventName) {
+            socket.emit(eventName, {});
         }
         socket.on('connect', function() {
             console.log('Connected');
-
-            socket.emit('events', { test: 'test' });
-            socket.emit('identity', 0, response =>
-                console.log('Identity:', response),
-            );
         });
         socket.on('events', function(data) {
             log(data.name || data);
@@ -46,13 +41,13 @@
 <body>
 <div class="w-full flex max-h-screen">
     <div class="w-3/4">
-        <button>start game</button>
-        <button>stop game</button>
-        <button onclick="stopGameForced()">force stop game</button>
+        <button onclick="emitEvent('startGame')">start game</button>
+        <button onclick="emitEvent('stopGame')">stop game</button>
+        <button onclick="emitEvent('stopGameForced')">force stop game</button>
         <br>
-        <button>bet</button>
-        <button>cancel bet</button>
-        <button>cash out</button>
+        <button onclick="emitEvent('betHandler')">bet</button>
+        <button onclick="emitEvent('cancelBetHandler')">cancel bet</button>
+        <button onclick="emitEvent('cashOutHandler')">cash out</button>
     </div>
     <div class="massage w-1/4 max-h-full overflow-auto">
         <header class="bg-white p-3 pb-1 sticky top-0"><b>Logs</b></header>
