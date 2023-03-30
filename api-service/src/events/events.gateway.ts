@@ -51,8 +51,12 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('betHandler')
-  betHandler() {
-    this.gameService.emit({ cmd: 'betHandler' }, {});
+  betHandler(e) {
+    const clientId = e.id;
+    this.gameService.emit(
+      { cmd: 'betHandler' },
+      { client: clientId, msg: 'bet accepted' },
+    );
   }
 
   @SubscribeMessage('cancelBetHandler')
@@ -67,5 +71,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   test(data: string): void {
     this.server.emit('events', { name: data });
+  }
+
+  privateMessage(data): void {
+    this.server.sockets.to(data.client).emit('events', { name: data.msg });
   }
 }

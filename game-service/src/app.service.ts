@@ -35,9 +35,9 @@ export class AppService {
     this.client.emit({ cmd: 'event123' }, 'emergency stop');
   }
 
-  async betHandler() {
+  async betHandler(data) {
     if (this.bettingPhase) {
-      this.client.emit({ cmd: 'event123' }, 'the bet is accepted');
+      this.client.emit({ cmd: 'cashOutResponse' }, data);
     }
   }
 

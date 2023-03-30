@@ -15,6 +15,11 @@ export class AppController {
     this.socket.test(data);
   }
 
+  @EventPattern({ cmd: 'cashOutResponse' })
+  cashOutResponse(data) {
+    this.socket.privateMessage(data);
+  }
+
   @Get('/ping-a')
   pingServiceA() {
     return this.appService.pingGameService();

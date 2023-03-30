@@ -36,9 +36,9 @@ export class AppController {
   }
 
   @EventPattern({ cmd: 'betHandler' })
-  async betHandler() {
+  async betHandler(data) {
     console.log('bet handler');
-    await this.appService.betHandler();
+    await this.appService.betHandler(data);
   }
 
   @EventPattern({ cmd: 'cancelBetHandler' })
