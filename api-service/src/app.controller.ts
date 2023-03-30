@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import { EventsGateway } from './events/events.gateway';
 import { EventPattern } from '@nestjs/microservices';
@@ -9,18 +9,10 @@ export class AppController {
     private readonly appService: AppService,
     private readonly socket: EventsGateway,
   ) {}
-  public loopId;
-
-  public endlessLoop() {
-    this.loopId = setInterval(() => {
-      this.socket.test('loop iteration');
-    }, 500);
-  }
 
   @EventPattern({ cmd: 'event123' })
-  pingFromEvent() {
-    console.log('emit game event');
-    this.socket.test('event from game service');
+  pingFromEvent(data) {
+    this.socket.test(data);
   }
 
   @Get('/ping-a')
@@ -28,15 +20,18 @@ export class AppController {
     return this.appService.pingGameService();
   }
 
-  @Get('/start-game')
-  startGameHandler() {
-    this.endlessLoop();
+  @Post('/start-game')
+  async startTheGame() {
+    await this.appService.startGame();
   }
 
-  @Get('/stop-game')
-  stopGameHandler() {
-    if (!this.loopId) return;
-    clearInterval(this.loopId);
-    this.loopId = null;
+  @Post('/stop-game')
+  async stopTheGame() {
+    await this.appService.stopGame();
+  }
+
+  @Post('/stop-game-forced')
+  async stopTheGameForced() {
+    await this.appService.stopGameForced();
   }
 }
