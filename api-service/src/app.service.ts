@@ -18,4 +18,22 @@ export class AppService {
         map((message: string) => ({ message, duration: Date.now() - startTs })),
       );
   }
+
+  async startGame() {
+    await this.gameService.connect();
+    const pattern = { cmd: 'startGame' };
+    const payload = {};
+    this.gameService.emit(pattern, payload);
+  }
+
+  async stopGame() {
+    const pattern = { cmd: 'stopGame' };
+    const payload = {};
+    this.gameService.emit(pattern, payload);
+  }
+  async stopGameForced() {
+    const pattern = { cmd: 'stopGameForced' };
+    const payload = {};
+    this.gameService.emit(pattern, payload);
+  }
 }

@@ -41,6 +41,8 @@ services:
       - "${GAME_SERVICE_PORT}:${GAME_SERVICE_PORT}"
     restart: always
     command: yarn start:${NODE_ENV}
+    depends_on:
+      - api-service
     volumes:
       - ./game-service:/usr/src/app
     networks:
