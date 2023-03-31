@@ -11,6 +11,10 @@
             logElem.innerHTML += timeStr + ": " + msg + "<br/>";
             logElem.scrollTop = logElem.scrollHeight;
         }
+        function counter(msg) {
+            var el = document.querySelector(".counter");
+            el.innerHTML = msg.value || msg;
+        }
         const socket = io('http://localhost:3000');
         function emitEvent(eventName) {
             socket.emit(eventName, {});
@@ -20,6 +24,14 @@
         });
         socket.on('events', function(data) {
             log(data.name || data);
+        });
+        socket.on('loopIteration', function(data) {
+            log(`${data.msg}, ${data.value}`);
+            counter(data);
+        });
+        socket.on('bettingPhase', function(data) {
+            log(`${data.msg}`);
+            counter(data.msg);
         });
         socket.on('exception', function(data) {
             console.log('exception event', data);
@@ -39,15 +51,20 @@
 </head>
 
 <body>
-<div class="w-full flex max-h-screen">
-    <div class="w-3/4">
-        <button onclick="emitEvent('startGame')">start game</button>
-        <button onclick="emitEvent('stopGame')">stop game</button>
-        <button onclick="emitEvent('stopGameForced')">force stop game</button>
-        <br>
-        <button onclick="emitEvent('betHandler')">bet</button>
-        <button onclick="emitEvent('cancelBetHandler')">cancel bet</button>
-        <button onclick="emitEvent('cashOutHandler')">cash out</button>
+<div class="w-full flex h-full max-h-screen">
+    <div class="w-3/4 max-h-full flex flex-col">
+        <div class="w-full grow flex flex-col items-center justify-center">
+<!--            <div>Multiplier count</div>-->
+            <div class="counter text-9xl font-black"></div>
+        </div>
+        <div class="flex justify-center">
+            <button onclick="emitEvent('startGame')">start game</button>
+            <button onclick="emitEvent('stopGame')">stop game</button>
+            <button onclick="emitEvent('stopGameForced')">force stop game</button>
+            <button onclick="emitEvent('betHandler')">bet</button>
+            <button onclick="emitEvent('cancelBetHandler')">cancel bet</button>
+            <button onclick="emitEvent('cashOutHandler')">cash out</button>
+        </div>
     </div>
     <div class="massage w-1/4 max-h-full overflow-auto">
         <header class="bg-white p-3 pb-1 sticky top-0"><b>Logs</b></header>

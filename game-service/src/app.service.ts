@@ -12,6 +12,7 @@ export class AppService {
   private gameStartTime = null;
   private stopGame = false;
   private gameContinues = false;
+  private crashPoint = 1;
 
   async startGameLoop() {
     await this.client.connect();
@@ -41,22 +42,27 @@ export class AppService {
     }
   }
 
-  async cancelBetHandler() {
+  async cancelBetHandler(data) {
     if (this.bettingPhase) {
-      this.client.emit({ cmd: 'event123' }, 'the bet is canceled');
+      this.client.emit({ cmd: 'cancelBetResponse' }, data);
     }
   }
 
-  async cashOutHandler() {
+  async cashOutHandler(data) {
     if (this.gamePhase) {
-      this.client.emit({ cmd: 'event123' }, 'cash out');
+      this.client.emit({ cmd: 'cashOutResponse' }, data);
     }
   }
 
   private async newGame() {
     if (this.stopGame) return;
     this.gameContinues = true;
-    this.client.emit({ cmd: 'event123' }, 'bet phase start');
+    const currentTime = Date.now();
+    const duration = 5000;
+    this.client.emit(
+      { cmd: 'bettingPhase' },
+      { msg: 'accepting bets', endTime: currentTime + duration },
+    );
     this.bettingPhase = true;
 
     this.bettingTimerId = setTimeout(() => {
@@ -65,10 +71,17 @@ export class AppService {
       this.client.emit({ cmd: 'event123' }, 'bet phase end');
       this.startGamePhase();
       clearTimeout(this.bettingTimerId);
-    }, 5000);
+    }, duration);
   }
 
   private async startGamePhase() {
+    const endImmediately = Math.floor(Math.random() * 10000000000) % 33 === 0; // ~3% chance
+    if (endImmediately) {
+      this.crashPoint = 1;
+    } else {
+      this.crashPoint = Math.round((0.01 + 0.99 / Math.random()) * 100) / 100;
+    }
+
     this.gameStartTime = Date.now();
     this.gameLoopTimerId = setInterval(() => {
       this.updateGameLoop();
@@ -76,21 +89,41 @@ export class AppService {
   }
 
   private async updateGameLoop() {
-    if (this.gamePhase) {
-      if (Date.now() > this.gameStartTime + 10000) {
-        await this.endGamePhase();
-        await this.newGame();
-      } else {
-        this.client.emit({ cmd: 'event123' }, 'game loop iteration');
-      }
-    } else if (!this.gamePhase && !this.gamePhase) {
+    if (!this.gamePhase) {
       await this.endGamePhase();
       await this.newGame();
+      return;
+    }
+
+    const timeElapsed = (Date.now() - this.gameStartTime) / 1000.0;
+    const currentMultiplier = Number(
+      (1.0024 * Math.pow(1.0718, timeElapsed)).toFixed(2),
+    );
+
+    if (currentMultiplier > this.crashPoint) {
+      this.client.emit(
+        { cmd: 'gameLoopIteration' },
+        {
+          msg: 'game loop iteration',
+          value: this.crashPoint,
+        },
+      );
+      await this.endGamePhase();
+      await this.newGame();
+    } else {
+      this.client.emit(
+        { cmd: 'gameLoopIteration' },
+        {
+          msg: 'game loop iteration',
+          value: currentMultiplier,
+        },
+      );
     }
   }
 
   private endGamePhase() {
     if (!this.gameLoopTimerId) return;
+    this.crashPoint = 1;
     this.gamePhase = false;
     clearInterval(this.gameLoopTimerId);
     this.gameLoopTimerId = null;

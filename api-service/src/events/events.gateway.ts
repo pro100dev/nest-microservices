@@ -60,13 +60,21 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('cancelBetHandler')
-  cancelBetHandler() {
-    this.gameService.emit({ cmd: 'cancelBetHandler' }, {});
+  cancelBetHandler(e) {
+    const clientId = e.id;
+    this.gameService.emit(
+      { cmd: 'cancelBetHandler' },
+      { client: clientId, msg: 'bet canceled' },
+    );
   }
 
   @SubscribeMessage('cashOutHandler')
-  cashOutHandler() {
-    this.gameService.emit({ cmd: 'cashOutHandler' }, {});
+  cashOutHandler(e) {
+    const clientId = e.id;
+    this.gameService.emit(
+      { cmd: 'cashOutHandler' },
+      { client: clientId, msg: 'cash out OK' },
+    );
   }
 
   test(data: string): void {
@@ -75,5 +83,13 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   privateMessage(data): void {
     this.server.sockets.to(data.client).emit('events', { name: data.msg });
+  }
+
+  gameLoopIteration(data): void {
+    this.server.emit('loopIteration', { msg: data.msg, value: data.value });
+  }
+
+  bettingPhaseStarted(data): void {
+    this.server.emit('bettingPhase', { msg: data.msg, endTime: data.endTime });
   }
 }

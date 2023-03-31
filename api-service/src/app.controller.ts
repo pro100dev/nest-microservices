@@ -15,6 +15,26 @@ export class AppController {
     this.socket.test(data);
   }
 
+  @EventPattern({ cmd: 'bettingPhase' })
+  bettingPhase(data) {
+    this.socket.bettingPhaseStarted(data);
+  }
+
+  @EventPattern({ cmd: 'gameLoopIteration' })
+  gameLoopIteration(data) {
+    this.socket.gameLoopIteration(data);
+  }
+
+  @EventPattern({ cmd: 'betResponse' })
+  betResponse(data) {
+    this.socket.privateMessage(data);
+  }
+
+  @EventPattern({ cmd: 'cancelBetResponse' })
+  cancelBetResponse(data) {
+    this.socket.privateMessage(data);
+  }
+
   @EventPattern({ cmd: 'cashOutResponse' })
   cashOutResponse(data) {
     this.socket.privateMessage(data);

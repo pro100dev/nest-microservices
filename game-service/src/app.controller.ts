@@ -42,14 +42,14 @@ export class AppController {
   }
 
   @EventPattern({ cmd: 'cancelBetHandler' })
-  async cancelBetHandler() {
+  async cancelBetHandler(data) {
     console.log('cancel bet handler');
-    await this.appService.cancelBetHandler();
+    await this.appService.cancelBetHandler(data);
   }
 
   @EventPattern({ cmd: 'cashOutHandler' })
-  async cashOutHandler() {
+  async cashOutHandler(data) {
     console.log('cash out handler');
-    await this.appService.cashOutHandler();
+    await this.appService.cashOutHandler(data);
   }
 }
