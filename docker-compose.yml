@@ -13,17 +13,18 @@ services:
       - API_SERVICE_HOSTNAME:${API_SERVICE_HOSTNAME}
       - API_SERVICE_TCP_PORT:${API_SERVICE_TCP_PORT}
       - API_SERVICE_HTTP_PORT:${API_SERVICE_HTTP_PORT}
-    hostname: "${API_SERVICE_HOSTNAME}"
     ports:
-      - "${API_SERVICE_HTTP_PORT}:${API_SERVICE_HTTP_PORT}"
-      - "${API_SERVICE_TCP_PORT}:${API_SERVICE_TCP_PORT}"
+      - "3000:3000"
+      - "3001:3001"
     restart: always
     command: yarn start:${NODE_ENV}
+    depends_on:
+      - game-service
     volumes:
       - ./api-service:/usr/src/app
     networks:
       - backend
-      - frontend
+      - default
 
   game-service:
     build:
@@ -36,21 +37,20 @@ services:
       - NODE_ENV:${NODE_ENV}
       - GAME_SERVICE_HOSTNAME:${GAME_SERVICE_HOSTNAME}
       - GAME_SERVICE_PORT:${GAME_SERVICE_PORT}
-    hostname: "${GAME_SERVICE_HOSTNAME}"
+#    hostname: "game-service"
     ports:
-      - "${GAME_SERVICE_PORT}:${GAME_SERVICE_PORT}"
+      - "3002:3002"
     restart: always
     command: yarn start:${NODE_ENV}
-    depends_on:
-      - api-service
     volumes:
       - ./game-service:/usr/src/app
     networks:
       - backend
+      - default
 
 networks:
   backend:
     driver: bridge
-  frontend:
-    name: crash-game
+  default:
+    name: bitplay
     external: true

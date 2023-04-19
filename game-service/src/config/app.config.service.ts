@@ -9,7 +9,7 @@ export class AppConfigService {
     this.envConfig.appService = {
       options: {
         port: process.env.GAME_SERVICE_PORT,
-        host: process.env.GAME_SERVICE_HOSTNAME,
+        host: 'game-service',
       },
       transport: Transport.TCP,
     };
@@ -17,7 +17,15 @@ export class AppConfigService {
     this.envConfig.apiService = {
       options: {
         port: process.env.API_SERVICE_TCP_PORT,
-        host: process.env.API_SERVICE_HOSTNAME,
+        host: 'api-service',
+      },
+      transport: Transport.TCP,
+    };
+
+    this.envConfig.rngService = {
+      options: {
+        port: 4000,
+        host: 'rng',
       },
       transport: Transport.TCP,
     };

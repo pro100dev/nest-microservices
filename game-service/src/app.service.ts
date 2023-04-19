@@ -1,9 +1,16 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { RngService } from './services/rng.service';
 
 @Injectable()
-export class AppService {
-  constructor(@Inject('API_SERVICE') private client: ClientProxy) {}
+export class AppService implements OnModuleInit {
+  constructor(
+    @Inject('API_SERVICE') private client: ClientProxy,
+    private readonly rngService: RngService,
+  ) {}
+  async onModuleInit() {
+    await this.client.connect();
+  }
 
   private bettingPhase = true;
   private gamePhase = false;
@@ -15,7 +22,6 @@ export class AppService {
   private crashPoint = 1;
 
   async startGameLoop() {
-    await this.client.connect();
     if (this.gameContinues) {
       this.client.emit({ cmd: 'event123' }, 'game loop already goes on');
       return;
@@ -75,6 +81,13 @@ export class AppService {
   }
 
   private async startGamePhase() {
+    // const rng = await this.rngService.generateResult({
+    //   serverSeed: 'asdfasf',
+    //   clientSeed: 'adsasdas',
+    //   cursor: 0,
+    //   count: 1,
+    //   nonce: 0,
+    // });
     const endImmediately = Math.floor(Math.random() * 10000000000) % 33 === 0; // ~3% chance
     if (endImmediately) {
       this.crashPoint = 1;

@@ -7,7 +7,7 @@ import { AppConfigService } from './config/app.config.service';
 async function bootstrap() {
   const tcpOptions: TcpOptions = new AppConfigService().get('appService');
   const app = await NestFactory.create(AppModule);
-  app.connectMicroservice<MicroserviceOptions>(tcpOptions);
+  await app.connectMicroservice<MicroserviceOptions>(tcpOptions);
 
   // const redisIoAdapter = new RedisIoAdapter(app);
   // await redisIoAdapter.connectToRedis();
@@ -15,6 +15,7 @@ async function bootstrap() {
 
   await app.startAllMicroservices();
   await app.listen(3000);
+  console.log(tcpOptions);
   console.log('API-service started');
 }
 bootstrap();
